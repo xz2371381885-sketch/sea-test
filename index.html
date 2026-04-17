@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>深海人格测试</title>
+<style>
+body {
+  font-family: Arial;
+  background: linear-gradient(#0a1a2f, #000);
+  color: #fff;
+  text-align: center;
+  padding: 20px;
+}
+.container {
+  max-width: 600px;
+  margin: auto;
+}
+button {
+  margin: 10px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #1e90ff;
+  color: white;
+  cursor: pointer;
+}
+button:hover {
+  background: #63b3ff;
+}
+.hidden { display: none; }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>🌊 深海人格测试</h1>
+
+<div id="start">
+  <p>测测你属于哪种海怪人格</p>
+  <button onclick="startTest()">开始测试</button>
+</div>
+
+<div id="quiz" class="hidden">
+  <h3 id="progress"></h3>
+  <p id="question"></p>
+  <div id="options"></div>
+</div>
+
+<div id="result" class="hidden">
+  <h2 id="type"></h2>
+  <p id="desc"></p>
+  <button onclick="location.reload()">重新测试</button>
+</div>
+
+</div>
+
+<script>
+
+// 题库（16题）
+const questions = [
+"我更倾向掌控局面",
+"我不喜欢事情失控",
+"我会主动影响他人",
+"我更愿意适应环境",
+"我做决定依赖逻辑",
+"情绪影响我的判断",
+"我习惯分析问题",
+"我容易被情绪影响",
+"我喜欢规划",
+"我不喜欢变化",
+"我喜欢随性",
+"我做事有结构",
+"我喜欢独处",
+"关系对我重要",
+"我不依赖他人",
+"我喜欢社交"
+]
+
+let current = 0
+let answers = []
+
+function startTest(){
+  document.getElementById("start").classList.add("hidden")
+  document.getElementById("quiz").classList.remove("hidden")
+  showQuestion()
+}
+
+function showQuestion(){
+  document.getElementById("progress").innerText = `第 ${current+1} / 16 题`
+  document.getElementById("question").innerText = questions[current]
+
+  let optionsHTML = ""
+  for(let i=1;i<=5;i++){
+    optionsHTML += `<button onclick="answer(${i})">${i}</button>`
+  }
+  document.getElementById("options").innerHTML = optionsHTML
+}
+
+function answer(score){
+  answers.push(score)
+  current++
+
+  if(current < questions.length){
+    showQuestion()
+  }else{
+    calculate()
+  }
+}
+
+function calculate(){
+  let S = answers[0]+answers[1]+answers[2]+(6-answers[3])
+  let R = answers[4]+(6-answers[5])+answers[6]+(6-answers[7])
+  let C = answers[8]+answers[9]+(6-answers[10])+answers[11]
+  let I = answers[12]+(6-answers[13])+answers[14]+(6-answers[15])
+
+  let type =
+    (S>12?"S":"A") +
+    (R>12?"R":"E") +
+    (C>12?"C":"F") +
+    (I>12?"I":"B")
+
+  showResult(type)
+}
+
+const resultMap = {
+  SRCI: ["塞壬型","深海统治者，掌控一切"],
+  SRCB: ["安莉型","冷静领导者"],
+  ARCI: ["夏意型","孤独掌控者"],
+  ARCB: ["郝国松型","责任型协调者"],
+  ARFI: ["阿碧瑟型","理性怪才"],
+  ARFB: ["许其慎型","低调核心"],
+  SECI: ["周亮型","极端反派"],
+  SECB: ["咕噜噜型","暴力执行者"],
+  AEFI: ["普罗透斯型","躺平治愈"],
+  AEFB: ["克拉肯型","混乱快乐"],
+  AEIB: ["玲玲型","情感共鸣"],
+  AECI: ["涅柔斯型","胆小防御"],
+  SEFI: ["刻托型","冲动战士"],
+  SEDI: ["尤瑞比亚型","迟钝猎杀"],
+  ACFI: ["伏尔库斯型","静态操控"]
+}
+
+function showResult(type){
+  document.getElementById("quiz").classList.add("hidden")
+  document.getElementById("result").classList.remove("hidden")
+
+  let result = resultMap[type] || ["未知类型",""]
+
+  document.getElementById("type").innerText = type + " - " + result[0]
+  document.getElementById("desc").innerText = result[1]
+}
+
+</script>
+
+</body>
+</html>
