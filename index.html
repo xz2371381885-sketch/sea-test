@@ -1,157 +1,696 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<title>深海人格测试</title>
-<style>
-body {
-  font-family: Arial;
-  background: linear-gradient(#0a1a2f, #000);
-  color: #fff;
-  text-align: center;
-  padding: 20px;
-}
-.container {
-  max-width: 600px;
-  margin: auto;
-}
-button {
-  margin: 10px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  background: #1e90ff;
-  color: white;
-  cursor: pointer;
-}
-button:hover {
-  background: #63b3ff;
-}
-.hidden { display: none; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深海异变：末世生存与人格匹配测试</title>
+    <style>
+        :root {
+            --bg-color: #050b14;
+            --text-color: #e0e8f5;
+            --primary-color: #00d2ff;
+            --secondary-color: #3a7bd5;
+            --accent-color: #ff4b2b;
+            --card-bg: rgba(10, 25, 47, 0.85);
+            --hover-bg: rgba(0, 210, 255, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-color) 0%, #0a1128 100%);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-attachment: fixed;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid var(--secondary-color);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 0 30px rgba(0, 210, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 霓虹发光效果 */
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+        }
+
+        .intro-text {
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: #a8b2c1;
+            font-size: 1rem;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            box-shadow: 0 0 15px var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        /* 答题区样式 */
+        #quiz-screen, #result-screen {
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #112240;
+            border-radius: 3px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .options-list {
+            list-style: none;
+        }
+
+        .option-item {
+            background: #112240;
+            border: 1px solid #233554;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            line-height: 1.5;
+        }
+
+        .option-item:hover {
+            background: var(--hover-bg);
+            border-color: var(--primary-color);
+        }
+
+        /* 结果区样式 */
+        .result-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .result-name {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin: 10px 0;
+            text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+        }
+
+        .danger-level {
+            display: inline-block;
+            background: rgba(255, 75, 43, 0.2);
+            color: var(--accent-color);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            border: 1px solid var(--accent-color);
+            margin-bottom: 20px;
+        }
+
+        .result-section {
+            background: #112240;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .result-section h3 {
+            color: #8892b0;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .result-quote {
+            font-style: italic;
+            color: #a8b2c1;
+            text-align: center;
+            padding: 20px;
+            border-top: 1px dashed #233554;
+            border-bottom: 1px dashed #233554;
+            margin-top: 30px;
+            font-size: 1.2rem;
+        }
+
+        .radar-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            background: #0a1128;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-item span {
+            display: block;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 20px; }
+            h1 { font-size: 1.4rem; }
+            .question-text { font-size: 1.1rem; }
+            .radar-stats { flex-wrap: wrap; gap: 10px; }
+            .stat-item { width: 45%; }
+        }
+    </style>
 </head>
-
 <body>
-<div class="container">
 
-<h1>🌊 深海人格测试</h1>
+    <div class="container">
+        <div id="start-screen">
+            <h1>深海异变<br>末世生存与人格匹配测试</h1>
+            <div class="intro-text">
+                <p>欢迎参加本测试。本测试将带你进入《海怪联盟》那个充满辐射、风暴与变异海怪的末世世界。</p><br>
+                <p>在这里，你的每一个选择都决定了你灵魂的底色——你究竟是那个拥有极致占有欲的深海主宰，还是在喧嚣世界中保持被动疏离的异能者？</p><br>
+                <p>测试共18题，请遵循第一直觉。测试不仅记录你的选择，更在窥探你的<strong>控制欲、社交性、理性值与攻击性</strong>。末世之中，没有骑墙的余地，你将获得唯一的绝对匹配结果。</p>
+            </div>
+            <button class="btn" onclick="startQuiz()">潜入深海 (开始测试)</button>
+        </div>
 
-<div id="start">
-  <p>测测你属于哪种海怪人格</p>
-  <button onclick="startTest()">开始测试</button>
-</div>
+        <div id="quiz-screen">
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+            <div id="question-container">
+                <div class="question-text" id="question-text">问题文本</div>
+                <ul class="options-list" id="options-list">
+                    </ul>
+            </div>
+        </div>
 
-<div id="quiz" class="hidden">
-  <h3 id="progress"></h3>
-  <p id="question"></p>
-  <div id="options"></div>
-</div>
+        <div id="result-screen">
+            <div class="result-header">
+                <h2>你的末世人格共鸣者是</h2>
+                <div class="result-name" id="char-name">角色名</div>
+                <div class="danger-level" id="char-danger">危险等级：SSS</div>
+            </div>
 
-<div id="result" class="hidden">
-  <h2 id="type"></h2>
-  <p id="desc"></p>
-  <button onclick="location.reload()">重新测试</button>
-</div>
+            <div class="result-section">
+                <h3>性格关键词</h3>
+                <p id="char-keywords">关键词列表</p>
+            </div>
 
-</div>
+            <div class="result-section">
+                <h3>行为模式与优劣势分析</h3>
+                <p id="char-analysis">行为分析</p>
+            </div>
 
-<script>
+            <div class="result-section">
+                <h3>团队定位</h3>
+                <p id="char-role">团队位置</p>
+            </div>
 
-// 题库（16题）
-const questions = [
-"我更倾向掌控局面",
-"我不喜欢事情失控",
-"我会主动影响他人",
-"我更愿意适应环境",
-"我做决定依赖逻辑",
-"情绪影响我的判断",
-"我习惯分析问题",
-"我容易被情绪影响",
-"我喜欢规划",
-"我不喜欢变化",
-"我喜欢随性",
-"我做事有结构",
-"我喜欢独处",
-"关系对我重要",
-"我不依赖他人",
-"我喜欢社交"
-]
+            <div class="radar-stats" id="dimension-stats">
+                </div>
 
-let current = 0
-let answers = []
+            <div class="result-quote" id="char-quote">
+                “总结金句”
+            </div>
 
-function startTest(){
-  document.getElementById("start").classList.add("hidden")
-  document.getElementById("quiz").classList.remove("hidden")
-  showQuestion()
-}
+            <button class="btn" style="margin-top: 30px;" onclick="location.reload()">重新进行测试</button>
+        </div>
+    </div>
 
-function showQuestion(){
-  document.getElementById("progress").innerText = `第 ${current+1} / 16 题`
-  document.getElementById("question").innerText = questions[current]
+    <script>
+        // --- 数据配置 ---
+        // 题目与选项数据 (选项文本移除了括号内容以保证沉浸感，分值在后台记录)
+        const questions = [
+            {
+                text: "1. 末世降临，你在即将沉没的塔拉萨女神号游轮上，第一反应是？",
+                options: [
+                    { text: "冷静寻找救生艇并试图维持秩序。", char: "安莉", charPts: 3, logic: 3, control: 0, social: 0, agg: 0 },
+                    { text: "找一个安静的角落独自等待死亡，不想被打扰。", char: "夏意", charPts: 3, logic: 0, control: 0, social: -3, agg: 0 },
+                    { text: "趁乱去酒吧收集那些漂亮的空玻璃瓶。", char: "阿碧瑟", charPts: 3, logic: 2, control: 1, social: 0, agg: 0 },
+                    { text: "惊恐地抓住身边任何人的胳膊大声哭喊。", char: "李绍", charPts: 4, logic: 0, control: 0, social: 3, agg: -1 }
+                ]
+            },
+            {
+                text: "2. 在深海中，你发现了一处闪烁着瑰丽反光的沉船宝藏，你会？",
+                options: [
+                    { text: "将其视为私人领地，绝不允许任何生物染指。", char: "塞壬", charPts: 3, logic: 0, control: 3, social: 0, agg: 0 },
+                    { text: "仔细研究金币的年份和历史，评估其价值。", char: "阿碧瑟", charPts: 3, logic: 3, control: 0, social: 0, agg: 0 },
+                    { text: "觉得这些闪亮的东西可以用来吸引玩伴。", char: "克拉肯", charPts: 3, logic: 0, control: 0, social: 3, agg: 0 },
+                    { text: "拿几个盘子在水里敲着玩，听回声。", char: "咕噜噜", charPts: 2, logic: 0, control: 0, social: 0, agg: 2 }
+                ]
+            },
+            {
+                text: "3. 当你遇到一个完全听不懂你语言的变异生物时，你会？",
+                options: [
+                    { text: "尝试用歌声或次声波传达某种致命的威慑。", char: "塞壬", charPts: 5, logic: 0, control: 2, social: 0, agg: 3 },
+                    { text: "保持沉默，保持安全距离，被动地观察它。", char: "夏意", charPts: 3, logic: 0, control: 0, social: -3, agg: 0 },
+                    { text: "热切地绕着它转圈，向它展示你新学的跳水姿势。", char: "克拉肯", charPts: 3, logic: 0, control: 0, social: 3, agg: 0 },
+                    { text: "躲在它看不见的礁石后面偷偷碎碎念。", char: "涅柔斯", charPts: 4, logic: 0, control: 0, social: 2, agg: -2 }
+                ]
+            },
+            {
+                text: "4. 长期宅在某处（如百慕大）不挪窝，你的状态是？",
+                options: [
+                    { text: "制造一些幻觉迷惑外来者，享受宁静的独处。", char: "伏尔库斯", charPts: 4, logic: 2, control: 2, social: 0, agg: 0 },
+                    { text: "懒得动弹，随风飘荡，只要有光和睡意就好。", char: "普罗透斯", charPts: 3, logic: 0, control: 0, social: 0, agg: -3 },
+                    { text: "虽然不出门，但通过“次声波广播”听八卦。", char: "伏尔库斯", charPts: 2, logic: 0, control: 0, social: 2, agg: 0 },
+                    { text: "焦虑地等待着能够把自己带走的“巨轮”。", char: "阿碧瑟", charPts: 1, logic: 1, control: 0, social: 0, agg: 0 }
+                ]
+            },
+            {
+                text: "5. 你的同伴正在与强敌搏斗，而你正处于下风，你会？",
+                options: [
+                    { text: "潜入阴影中，寻找机会直接通过控制对方血液一击必杀。", char: "周亮", charPts: 5, logic: 2, control: 0, social: 0, agg: 3 },
+                    { text: "哪怕拼个两败俱伤，也要让对方付出惨痛代价。", char: "刻托", charPts: 3, logic: 0, control: 0, social: 0, agg: 3 },
+                    { text: "悄悄伸出触手释放麻痹毒素进行干扰。", char: "涅柔斯", charPts: 1, logic: 0, control: 0, social: 0, agg: 1 },
+                    { text: "释放治愈物质，帮助同伴加速伤口愈合。", char: "普罗透斯", charPts: 2, logic: 2, control: 0, social: 0, agg: 0 }
+                ]
+            },
+            {
+                text: "6. 关于“家”的定义，你更倾向于？",
+                options: [
+                    { text: "绝对掌控的私人海域，只能有我和我认定的伴侣。", char: "塞壬", charPts: 3, logic: 0, control: 3, social: 0, agg: 0 },
+                    { text: "只要没人能找到我的地方就是家。", char: "夏意", charPts: 3, logic: 0, control: 0, social: -3, agg: 0 },
+                    { text: "只要有美食和收藏品，哪里都能当家。", char: "阿碧瑟", charPts: 2, logic: 2, control: 0, social: 0, agg: 0 },
+                    { text: "跟着大部队迁徙，大家在一起的地方就是家。", char: "尤瑞比亚", charPts: 2, logic: 0, control: 0, social: 2, agg: 0 }
+                ]
+            },
+            {
+                text: "7. 在极寒的南极海域，你必须要带队寻找回家的路，你会？",
+                options: [
+                    { text: "虽然反应迟钝，但任劳任怨地在前方破冰、防御。", char: "尤瑞比亚", charPts: 3, logic: 1, control: 0, social: 0, agg: 2 },
+                    { text: "嫌弃太冷，一边抱怨一边高速冲锋，结果经常迷路。", char: "刻托", charPts: 2, logic: 0, control: 0, social: 0, agg: 2 },
+                    { text: "利用风力屏障阻挡外界攻击，稳健航行。", char: "许其慎", charPts: 3, logic: 3, control: 0, social: 0, agg: 0 },
+                    { text: "指导大家如何在冰层下寻找高能磷虾。", char: "阿碧瑟", charPts: 3, logic: 3, control: 0, social: 0, agg: 0 }
+                ]
+            },
+            {
+                text: "8. 面对那些你极其讨厌的弱小生物（如人类），你会？",
+                options: [
+                    { text: "玩弄他们的负面情绪，欣赏他们的绝望。", char: "塞壬", charPts: 4, logic: 0, control: 2, social: 0, agg: 2 },
+                    { text: "只要他们不踏入我的领地，我无所谓。", char: "夏意", charPts: 2, logic: 0, control: 0, social: 0, agg: -2 },
+                    { text: "通过制造幻觉让他们绕圈子，把他们赶走。", char: "伏尔库斯", charPts: 2, logic: 0, control: 2, social: 0, agg: 0 },
+                    { text: "阴险地挑动他们内斗，坐收渔翁之利。", char: "周亮", charPts: 6, logic: 3, control: 0, social: 0, agg: 3 }
+                ]
+            },
+            {
+                text: "9. 你发现了一样非常好吃但有毒的食物，你会？",
+                options: [
+                    { text: "冒着中毒的风险也要尝一口，毕竟吃货无畏。", char: "阿碧瑟", charPts: 2, logic: 0, control: 0, social: 0, agg: 2 },
+                    { text: "盯着看半天，最后决定还是睡觉更重要。", char: "普罗透斯", charPts: 3, logic: 0, control: 0, social: 0, agg: -3 },
+                    { text: "想办法让别人先试毒，或者通过某种异能解毒。", char: "塞壬", charPts: 2, logic: 2, control: 0, social: 0, agg: 0 },
+                    { text: "觉得有毒也没关系，分给不喜欢的人吃。", char: "周亮", charPts: 3, logic: 0, control: 0, social: 0, agg: 3 }
+                ]
+            },
+            {
+                text: "10. 你被卷入了一场莫名其妙的争执中，你的表现是？",
+                options: [
+                    { text: "疯狂地挥舞钳子，用噪声表达愤怒。", char: "咕噜噜", charPts: 3, logic: 0, control: 0, social: 0, agg: 3 },
+                    { text: "不停地碎碎念，试图通过语言让对方退缩。", char: "涅柔斯", charPts: 3, logic: 0, control: 0, social: 3, agg: 0 },
+                    { text: "沉默地离开现场，回到深水区。", char: "夏意", charPts: 3, logic: 0, control: 0, social: -3, agg: 0 },
+                    { text: "找出对方逻辑的漏洞，用事实反驳。", char: "阿碧瑟", charPts: 3, logic: 3, control: 0, social: 0, agg: 0 }
+                ]
+            },
+            {
+                text: "11. 在一个团队中，你希望担任的角色是？",
+                options: [
+                    { text: "说一不二的绝对领袖。", char: "塞壬", charPts: 3, logic: 0, control: 3, social: 0, agg: 0 },
+                    { text: "提供战术分析和情报的军师。", char: "阿碧瑟", charPts: 3, logic: 3, control: 0, social: 0, agg: 0 },
+                    { text: "活跃气氛、负责搞笑和联络的公关。", char: "李绍", charPts: 3, logic: 0, control: 0, social: 3, agg: 0 },
+                    { text: "只要别让我当负责人，干什么都行。", char: "普罗透斯", charPts: 2, logic: 0, control: 0, social: 0, agg: -2 }
+                ]
+            },
+            {
+                text: "12. 你拥有极其强大的力量，你会如何使用它？",
+                options: [
+                    { text: "建立属于自己的新秩序，剔除不听话的人。", char: "周亮", charPts: 6, logic: 0, control: 3, social: 0, agg: 3 },
+                    { text: "只用来保护心中那一抹温柔和纯粹。", char: "夏意", charPts: 4, logic: 0, control: 0, social: -2, agg: 2 },
+                    { text: "展示自己的强大，希望能获得团队的赞美。", char: "克拉肯", charPts: 2, logic: 0, control: 0, social: 2, agg: 0 },
+                    { text: "尽可能地调控战术，减少牺牲。", char: "郝国松", charPts: 3, logic: 3, control: 0, social: 0, agg: 0 }
+                ]
+            },
+            {
+                text: "13. 你最无法忍受的事情是？",
+                options: [
+                    { text: "属于自己的东西被别人碰触。", char: "塞壬", charPts: 3, logic: 0, control: 3, social: 0, agg: 0 },
+                    { text: "必须在很多人面前进行长时间社交。", char: "夏意", charPts: 3, logic: 0, control: 0, social: -3, agg: 0 },
+                    { text: "辛辛苦苦收集的宝贝被当做垃圾处理。", char: "阿碧瑟", charPts: 2, logic: 2, control: 0, social: 0, agg: 0 },
+                    { text: "被队友戏弄或无视。", char: "涅柔斯", charPts: 2, logic: 0, control: 0, social: 2, agg: 0 }
+                ]
+            },
+            {
+                text: "14. 面对突如其来的飓风海啸，你的反应是？",
+                options: [
+                    { text: "感觉到一种莫名的兴奋，想在巨浪中穿梭。", char: "克拉肯", charPts: 4, logic: 0, control: 0, social: 2, agg: 2 },
+                    { text: "迅速下潜到深海海沟避难。", char: "刻托", charPts: 2, logic: 2, control: 0, social: 0, agg: 0 },
+                    { text: "保护好团队中的弱小成员，尽职尽责。", char: "郝国松", charPts: 4, logic: 0, control: 2, social: 0, agg: 2 },
+                    { text: "借用风力形成屏障，保护船只稳定。", char: "许其慎", charPts: 3, logic: 3, control: 0, social: 0, agg: 0 }
+                ]
+            },
+            {
+                text: "15. 如果你可以改变自己的身体，你希望？",
+                options: [
+                    { text: "拥有无坚不摧的防御力。", char: "咕噜噜", charPts: 2, logic: 0, control: 0, social: 0, agg: 2 },
+                    { text: "能够随着环境完美改变体色进行伪装。", char: "阿碧瑟", charPts: 3, logic: 3, control: 0, social: 0, agg: 0 },
+                    { text: "能够分泌治愈一切的特殊物质。", char: "普罗透斯", charPts: 2, logic: 2, control: 0, social: 0, agg: 0 },
+                    { text: "能够发出让人神经错乱的次声波。", char: "塞壬", charPts: 3, logic: 0, control: 0, social: 0, agg: 3 }
+                ]
+            },
+            {
+                text: "16. 在物资极度匮乏的末世，你如何看待“同情心”？",
+                options: [
+                    { text: "那是弱者才有的累赘，只会阻碍生存。", char: "周亮", charPts: 3, logic: 0, control: 0, social: 0, agg: 3 },
+                    { text: "虽然嘴上不说，但会默默为善良的生物留一线生机。", char: "夏意", charPts: 2, logic: 0, control: 0, social: 0, agg: 0 }, // Emotion+2 ignored in pure logic stats but tracked for char
+                    { text: "只要对方能陪我玩，我可以分享我的小牧鱼。", char: "涅柔斯", charPts: 3, logic: 0, control: 0, social: 3, agg: 0 },
+                    { text: "同情心要有，但必须建立在理性决策之上。", char: "安莉", charPts: 3, logic: 3, control: 0, social: 0, agg: 0 }
+                ]
+            },
+            {
+                text: "17. 当你感到压力非常大时，你会选择？",
+                options: [
+                    { text: "去海面上疯狂跳跃旋转。", char: "克拉肯", charPts: 3, logic: 0, control: 0, social: 3, agg: 0 },
+                    { text: "沉入万米海沟宅着，谁也不见。", char: "刻托", charPts: 3, logic: 0, control: 0, social: -3, agg: 0 },
+                    { text: "找一个坚硬的物体不停地敲打解压。", char: "咕噜噜", charPts: 3, logic: 0, control: 0, social: 0, agg: 3 },
+                    { text: "彻底断开与外界的联系，大睡一场。", char: "普罗透斯", charPts: 2, logic: 0, control: 0, social: 0, agg: -2 }
+                ]
+            },
+            {
+                text: "18. 你的伴侣想要离开你，你的第一反应是？",
+                options: [
+                    { text: "哪怕是拥抱一具尸体，也绝不松手。", char: "塞壬", charPts: 3, logic: 0, control: 3, social: 0, agg: 0 },
+                    { text: "虽然内心极度痛苦，但表现得冷淡且疏离。", char: "夏意", charPts: 6, logic: 0, control: 0, social: -3, agg: 0 },
+                    { text: "碎碎念地数落对方的无情，希望能挽留。", char: "涅柔斯", charPts: 3, logic: 0, control: 0, social: 3, agg: 0 },
+                    { text: "冷静分析对方离开的原因并评估损益。", char: "阿碧瑟", charPts: 3, logic: 3, control: 0, social: 0, agg: 0 }
+                ]
+            }
+        ];
 
-  let optionsHTML = ""
-  for(let i=1;i<=5;i++){
-    optionsHTML += `<button onclick="answer(${i})">${i}</button>`
-  }
-  document.getElementById("options").innerHTML = optionsHTML
-}
+        // 角色档案库
+        const characters = {
+            "塞壬": {
+                danger: "SSS",
+                keywords: "残暴、占有、优雅、执着",
+                analysis: "习惯于直接摧毁威胁，迷恋捕捉猎物时的情绪波动。绝对武力是优势，但过于依赖精神契合和独占欲是弱点。",
+                role: "核心领袖，不可撼动的权威",
+                quote: "你不是在恋爱，你是在建立一个名为‘永远’的牢笼。"
+            },
+            "夏意": {
+                danger: "S",
+                keywords: "孤独、温柔、被动、水元素",
+                analysis: "习惯躲避社交，通过控制局部气候表达善意或愤怒。爆发力极强但社交能力是负数。",
+                role: "被动核心，沟通桥梁",
+                quote: "你不是冷漠，你只是找不到在这个频率里回应世界的方式。"
+            },
+            "阿碧瑟": {
+                danger: "A+",
+                keywords: "逻辑、收集、贪婪、聪明",
+                analysis: "会为了玻璃瓶或奶粉罐去推航母。高智商，但偶尔会因为贪吃而掉队。",
+                role: "军师与运输核心",
+                quote: "如果你不再计算得失，你将是这片海域最自由的灵魂。"
+            },
+            "周亮": {
+                danger: "SS",
+                keywords: "阴冷、报复、极权、精算",
+                analysis: "躲在暗处控制血液流向，不留活口。极致的理性与破坏欲，弱点是极度自负。",
+                role: "秩序破坏者",
+                quote: "你的强大建立在对他人的压迫上，所以你也注定死于他人的绝望。"
+            },
+            "普罗透斯": {
+                danger: "B",
+                keywords: "懒散、治愈、随缘、医生",
+                analysis: "被拖着走也照睡不误。极高的自愈能力，弱点是没有任何上进心。",
+                role: "医疗后勤",
+                quote: "你不是在生存，你只是在末世里顺便活了下去。"
+            },
+            "克拉肯": {
+                danger: "A",
+                keywords: "纯真、好动、模仿、团宠",
+                analysis: "喜欢模仿人类唱歌，爱显摆跳跃技巧。生长潜力巨大，弱点是心智过幼。",
+                role: "团宠与侦查",
+                quote: "你不是长得大，你只是还没学会收敛你的好奇心。"
+            },
+            "安莉": {
+                danger: "A",
+                keywords: "冷静、决断、领导、火焰",
+                analysis: "在混乱中迅速建立秩序，以最小代价换取最大生存率。极强的决策能力与执行力。",
+                role: "人类阵营指挥核心",
+                quote: "你不是冷血，你只是清楚——活下去需要有人做出不被原谅的决定。"
+            },
+            "李绍": {
+                danger: "B+",
+                keywords: "话痨、世俗、胆小、顽强",
+                analysis: "在恐惧中不断说话缓解压力，同时用能力完成关键后勤任务。生存欲极强且适应力高。",
+                role: "后勤运输 / 气氛担当",
+                quote: "你看起来最不可靠，但偏偏是最难死的那种人。"
+            },
+            "涅柔斯": {
+                danger: "A-",
+                keywords: "胆小、话痨、依赖、敏感",
+                analysis: "通过不断碎碎念确认安全，同时利用触手布网进行大范围捕猎。范围控制能力极强。",
+                role: "预警 / 控场单位",
+                quote: "你以为自己很弱，但你的‘存在范围’，已经覆盖了整片海域。"
+            },
+            "刻托": {
+                danger: "A",
+                keywords: "暴躁、冲动、迷失、攻击性",
+                analysis: "依靠本能进行高速突袭，经常在战斗中偏离方向。爆发力极强，但缺乏判断力。",
+                role: "先锋突击单位",
+                quote: "你不是找不到方向，你只是从不怀疑自己撞过去的那条路。"
+            },
+            "尤瑞比亚": {
+                danger: "A-",
+                keywords: "迟钝、稳定、耐寒、依赖环境",
+                analysis: "在低温环境中发挥最大战力，承担防御与搬运任务。防御与破坏力极强。",
+                role: "重装护卫 / 运输核心",
+                quote: "你不是迟钝，你只是把所有思考都换成了绝对的执行力。"
+            },
+            "咕噜噜": {
+                danger: "A-",
+                keywords: "暴躁、直接、防御、情绪外放",
+                analysis: "通过敲击和攻击表达情绪，是典型的“先动手再说”类型。防御极强、力量巨大。",
+                role: "前排防御 / 重装单位",
+                quote: "当你无法用语言表达时，你选择让整个海底听见你的声音。"
+            },
+            "伏尔库斯": {
+                danger: "A",
+                keywords: "宅、控制、话痨、领域型",
+                analysis: "长期固守一地，通过制造幻觉操控局势并干扰入侵者。领域控制能力极强。",
+                role: "阵地控制 / 幻觉陷阱",
+                quote: "你不需要移动，因为整个世界都会在你的领域里迷路。"
+            },
+            "许其慎": {
+                danger: "B+",
+                keywords: "沉默、稳定、隐形、执行",
+                analysis: "在团队中几乎没有存在感，但持续提供关键动力支持。极高稳定性与耐力。",
+                role: "航行核心 / 动力提供者",
+                quote: "你不需要被看见，因为一旦你停下，所有人都会发现你有多重要。"
+            },
+            "郝国松": {
+                danger: "A",
+                keywords: "责任、秩序、保护、军人",
+                analysis: "在混乱中维持规则，优先保护弱者与整体利益。极强责任感与战术能力。",
+                role: "官方协调者 / 战术核心",
+                quote: "你不是最强的人，但你是那个不能倒下的人。"
+            },
+            "玲玲": {
+                danger: "B",
+                keywords: "纯净、安静、共鸣、连接",
+                analysis: "通过非语言方式与世界沟通，在沉默中建立最深的联系。极强的沟通潜力。",
+                role: "沟通桥梁 / 次声波媒介",
+                quote: "你不说话，但你听见的世界，比任何人都完整。"
+            }
+        };
 
-function answer(score){
-  answers.push(score)
-  current++
+        // 强行筛选优先级梯队 (越靠前优先级越高)
+        const priorityList = [
+            "塞壬", "夏意", "周亮", "阿碧瑟", "安莉", "刻托", 
+            "伏尔库斯", "克拉肯", "郝国松", "尤瑞比亚", "咕噜噜", 
+            "涅柔斯", "许其慎", "李绍", "玲玲", "普罗透斯"
+        ];
 
-  if(current < questions.length){
-    showQuestion()
-  }else{
-    calculate()
-  }
-}
+        // --- 逻辑控制 ---
+        let currentQuestion = 0;
+        let charScores = {};
+        let dimensionScores = {
+            logic: 0,
+            control: 0,
+            social: 0,
+            agg: 0
+        };
 
-function calculate(){
-  let S = answers[0]+answers[1]+answers[2]+(6-answers[3])
-  let R = answers[4]+(6-answers[5])+answers[6]+(6-answers[7])
-  let C = answers[8]+answers[9]+(6-answers[10])+answers[11]
-  let I = answers[12]+(6-answers[13])+answers[14]+(6-answers[15])
+        function startQuiz() {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'block';
+            renderQuestion();
+        }
 
-  let type =
-    (S>12?"S":"A") +
-    (R>12?"R":"E") +
-    (C>12?"C":"F") +
-    (I>12?"I":"B")
+        function renderQuestion() {
+            if (currentQuestion >= questions.length) {
+                calculateResult();
+                return;
+            }
 
-  showResult(type)
-}
+            const q = questions[currentQuestion];
+            document.getElementById('question-text').innerText = q.text;
+            
+            const optionsList = document.getElementById('options-list');
+            optionsList.innerHTML = '';
+            
+            q.options.forEach((opt, index) => {
+                const li = document.createElement('li');
+                li.className = 'option-item';
+                li.innerText = opt.text;
+                li.onclick = () => selectOption(opt);
+                optionsList.appendChild(li);
+            });
 
-const resultMap = {
-  SRCI: ["塞壬型","深海统治者，掌控一切"],
-  SRCB: ["安莉型","冷静领导者"],
-  ARCI: ["夏意型","孤独掌控者"],
-  ARCB: ["郝国松型","责任型协调者"],
-  ARFI: ["阿碧瑟型","理性怪才"],
-  ARFB: ["许其慎型","低调核心"],
-  SECI: ["周亮型","极端反派"],
-  SECB: ["咕噜噜型","暴力执行者"],
-  AEFI: ["普罗透斯型","躺平治愈"],
-  AEFB: ["克拉肯型","混乱快乐"],
-  AEIB: ["玲玲型","情感共鸣"],
-  AECI: ["涅柔斯型","胆小防御"],
-  SEFI: ["刻托型","冲动战士"],
-  SEDI: ["尤瑞比亚型","迟钝猎杀"],
-  ACFI: ["伏尔库斯型","静态操控"]
-}
+            // 更新进度条
+            const progress = ((currentQuestion) / questions.length) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
+        }
 
-function showResult(type){
-  document.getElementById("quiz").classList.add("hidden")
-  document.getElementById("result").classList.remove("hidden")
+        function selectOption(opt) {
+            // 累加角色分数
+            if (!charScores[opt.char]) charScores[opt.char] = 0;
+            charScores[opt.char] += opt.charPts;
 
-  let result = resultMap[type] || ["未知类型",""]
+            // 累加维度分数
+            dimensionScores.logic += opt.logic;
+            dimensionScores.control += opt.control;
+            dimensionScores.social += opt.social;
+            dimensionScores.agg += opt.agg;
 
-  document.getElementById("type").innerText = type + " - " + result[0]
-  document.getElementById("desc").innerText = result[1]
-}
+            currentQuestion++;
+            renderQuestion();
+        }
 
-</script>
+        function calculateResult() {
+            let finalChar = "";
+            let maxScore = -Infinity;
+            let topChars = [];
 
+            // 1. 寻找最高分角色
+            for (const char in charScores) {
+                if (charScores[char] > maxScore) {
+                    maxScore = charScores[char];
+                    topChars = [char];
+                } else if (charScores[char] === maxScore) {
+                    topChars.push(char);
+                }
+            }
+
+            // 2. 同分破局 (Tie-Breaker)
+            if (topChars.length === 1) {
+                finalChar = topChars[0];
+            } else {
+                let bestRank = Infinity;
+                for (const char of topChars) {
+                    const rank = priorityList.indexOf(char);
+                    if (rank !== -1 && rank < bestRank) {
+                        bestRank = rank;
+                        finalChar = char;
+                    }
+                }
+                // 如果出现未在列表中的意外情况(容错)，取第一个
+                if (!finalChar) finalChar = topChars[0];
+            }
+
+            // 3. 极端特质覆盖 (一票否决)
+            if (dimensionScores.control > 10 && dimensionScores.agg > 8) {
+                finalChar = "塞壬"; // 【危险塞壬型】
+            } else if (dimensionScores.agg > 10 && dimensionScores.logic > 8 && dimensionScores.social < 3) {
+                finalChar = "周亮"; // 【反派极权型】
+            }
+
+            showResult(finalChar);
+        }
+
+        function showResult(charName) {
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+
+            const charData = characters[charName];
+            
+            document.getElementById('char-name').innerText = charName;
+            document.getElementById('char-danger').innerText = "危险等级：" + charData.danger;
+            document.getElementById('char-keywords').innerText = charData.keywords;
+            document.getElementById('char-analysis').innerText = charData.analysis;
+            document.getElementById('char-role').innerText = charData.role;
+            document.getElementById('char-quote').innerText = "“" + charData.quote + "”";
+
+            // 渲染雷达/统计数据
+            const statsHtml = `
+                <div class="stat-item">
+                    <span>${dimensionScores.control}</span>
+                    控制欲
+                </div>
+                <div class="stat-item">
+                    <span>${dimensionScores.social}</span>
+                    社交性
+                </div>
+                <div class="stat-item">
+                    <span>${dimensionScores.logic}</span>
+                    理性值
+                </div>
+                <div class="stat-item">
+                    <span>${dimensionScores.agg}</span>
+                    攻击性
+                </div>
+            `;
+            document.getElementById('dimension-stats').innerHTML = statsHtml;
+        }
+    </script>
 </body>
 </html>
